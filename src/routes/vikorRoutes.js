@@ -11,35 +11,35 @@ router.get('/', (req, res) => {
         api_endpoints: [
         {
             "endpoint": "GET /vikor/decision-matrix",
-            "desc": "Retrieves the decision matrix (F), which represents the alternatives and their values for each criterion."
+            "description": "Retrieves the decision matrix (F), which represents the alternatives and their values for each criterion."
         },
         {
             "endpoint": "GET /vikor/criteria-weights",
-            "desc": "Retrieves the criteria weights (W), which define the relative importance of each criterion in the decision-making process."
+            "description": "Retrieves the criteria weights (W), which define the relative importance of each criterion in the decision-making process."
         },
         {
             "endpoint": "GET /vikor/normalized-matrix",
-            "desc": "Retrieves the normalized decision matrix (N), which represents the decision matrix values normalized for comparison."
+            "description": "Retrieves the normalized decision matrix (N), which represents the decision matrix values normalized for comparison."
         },
         {
             "endpoint": "GET /vikor/normalized-weights",
-            "desc": "Retrieves the normalized weighted matrix (F*), which is the normalized matrix after applying the criteria weights."
+            "description": "Retrieves the normalized weighted matrix (F*), which is the normalized matrix after applying the criteria weights."
         },
         {
             "endpoint": "GET /vikor/utility-regret",
-            "desc": "Retrieves the utility (S) and regret (R) measures, which evaluate the alternatives based on their performance and distance from the ideal solution."
+            "description": "Retrieves the utility (S) and regret (R) measures, which evaluate the alternatives based on their performance and distance from the ideal solution."
         },
         {
             "endpoint": "GET /vikor/vikor-index",
-            "desc": "Retrieves the VIKOR index (Q) values, which combine utility and regret measures to rank the alternatives."
+            "description": "Retrieves the VIKOR index (Q) values, which combine utility and regret measures to rank the alternatives."
         },
         {
             "endpoint": "GET /vikor/alternative-ranking",
-            "desc": "Retrieves the ranked alternatives based on the VIKOR index (Q), ordering the alternatives from the best to the worst."
+            "description": "Retrieves the ranked alternatives based on the VIKOR index (Q), ordering the alternatives from the best to the worst."
         },
         {
             "endpoint": "GET /vikor/compromise-solution",
-            "desc": "Retrieves the best compromise solution from the ranked alternatives, which balances utility and regret measures."
+            "description": "Retrieves the best compromise solution from the ranked alternatives, which balances utility and regret measures."
         }
     ]
 
@@ -47,11 +47,12 @@ router.get('/', (req, res) => {
 })
 })
 router.get('/decision-matrix', controller.decisionMatrix)
-router.get('/normalized-matrix', controller.normalizedMatrix)
 router.get('/criteria-weights', controller.criteriaWeights)
+router.get('/normalized-matrix', controller.normalizedMatrix)
 router.get('/normalized-weights', controller.normalizedWeights)
 router.get('/utility-regret', controller.utilityRegret)
-router.get('/alternative-ranking', controller.alternativeRanking)
 router.get('/vikor-index', controller.vikorIndex)
+router.get('/alternative-ranking', controller.alternativeRanking)
+router.get('/compromise-solution', controller.compromiseSolution)
 
 export default router

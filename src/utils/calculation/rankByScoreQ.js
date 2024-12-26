@@ -1,9 +1,17 @@
 //Step 7 - Alternative Ranking
-//select either rank by value_1, value_2, or
+//select either rank by value_1, value_2, or value_3 as argument
 //Used in #8 compromise solution - Testing 2nd condition: Acceptable Stability in Decision-Making
 
-const sortResultsByScore = (result, valueKey) => {
-    return result
+const sortResultsByScore = (data, valueKey) => {
+    if (!data) {
+        return null
+    }
+
+    if (data.length === 1) {
+        return data;
+    }
+
+    return data
         .map(alternative => {
             // Create a new object with only the relevant value
             const sortedAlternative = {

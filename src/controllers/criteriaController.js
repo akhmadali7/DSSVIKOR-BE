@@ -1,11 +1,14 @@
 import * as model from "../models/criteriaModel.js";
 import * as scoreModel from "../models/scoreModel.js";
+import * as transactionModel from "../models/transactionModel.js";
 
 import validateRequiredFields from "../utils/validateRequiredFields.js";
 
 const getAllCriteria = async (req, res) => {
-    const [data] = await model.getAllCriteria();
-
+    const {userData} = req;
+    const {user_id} = userData;
+    console.log(user_id)
+        const [data] = await model.getAllCriteria(user_id);
     if (data.length === 0) {
         return res.status(200).json({
             code: "DATA_NOT_EXIST_IN_DATABASE",
@@ -28,7 +31,13 @@ const getAllCriteria = async (req, res) => {
 
 }
 const getTotalCriteria = async (req, res) => {
-    const data = await model.getTotalCriteria();
+    const {userData} = req;
+    const {user_id} = userData;
+    const data = await model.getTotalCriteria(user_id);
+    if (data.total_criteria == 0) return res.status(200).json({
+        code: "DATA_EMPTY",
+        message: "Data criteria in database is empty",
+    })
     try {
         res.status(200).json({
             message: "success get total of criteria",
@@ -44,7 +53,10 @@ const getTotalCriteria = async (req, res) => {
 }
 const getOneCriteria = async (req, res) => {
     const id = req.params.id;
-    const data = await model.getOneCriteria(id)
+    const {userData} = req;
+    const {user_id} = userData;
+
+    const data = await model.getOneCriteria(id, user_id)
     if (!data) {
         return res.status(200).json({
             code: "DATA_NOT_FOUND",
@@ -68,6 +80,8 @@ const getOneCriteria = async (req, res) => {
 const createNewCriteria = async (req, res) => {
     const body = req.body;
     const {trend, parameter_count, criteria_weight} = req.body;
+    const {userData} = req
+    const {user_id} = userData;
     const requiredFields = ['criteria_name', 'criteria_weight', 'trend', 'parameter_count'];
     if (validateRequiredFields(requiredFields, body, res)) {
         return;
@@ -97,10 +111,11 @@ const createNewCriteria = async (req, res) => {
             message: 'parameter count cannot be less than 0'
         });
     }
-
     try {
-        const newCriteriaId = await model.createNewCriteria(body)
+        await transactionModel.start()
+        const newCriteriaId = await model.createNewCriteria(body, user_id)
         const scoreSeed = await scoreModel.seedScoreByCriteria(newCriteriaId)
+        await transactionModel.commit()
         res.status(200).json({
             code: "DATA_CREATED",
             message: "success create one new criteria",
@@ -109,6 +124,7 @@ const createNewCriteria = async (req, res) => {
             data: body
         })
     } catch (err) {
+        await transactionModel.rollback()
         res.status(500).json({
             serverMessage: err,
             message: "Server Error",
@@ -116,8 +132,10 @@ const createNewCriteria = async (req, res) => {
     }
 }
 const deleteOneCriteria = async (req, res) => {
+    const {userData} = req;
+    const {user_id} = userData;
     const id = req.params.id;
-    const data = await model.getOneCriteria(id)
+    const data = await model.getOneCriteria(id, user_id)
     if (!data) {
         return res.status(200).json({
             code: "DATA_NOT_FOUND",
@@ -126,8 +144,8 @@ const deleteOneCriteria = async (req, res) => {
         })
     }
     try {
-        const dataDeleted = await model.getOneCriteria(id)
-        await model.deleteOneCriteria(id)
+        const dataDeleted = await model.getOneCriteria(id, user_id)
+        await model.deleteOneCriteria(id, user_id)
         res.status(200).json({
             message: "success delete one new criteria",
             code: "DATA_DELETED",
@@ -144,9 +162,12 @@ const deleteOneCriteria = async (req, res) => {
 const updateOneCriteria = async (req, res) => {
     const id = req.params.id;
     const body = req.body
-    const data = await model.getOneCriteria(id)
+    const {userData} = req
+    const {user_id} = userData
+
+    const data = await model.getOneCriteria(id, user_id)
     if (!data) {
-        res.status(200).json({
+        return res.status(200).json({
             code: "DATA_NOT_FOUND",
             message: "selected data criteria not found",
             requested_id: id
@@ -178,15 +199,15 @@ const updateOneCriteria = async (req, res) => {
         } else {
             body.has_parameter = 0;
         }
-        const updateData = await model.updateOneCriteria(id, body)
-        console.log(updateData)
+        const updateData = await model.updateOneCriteria(id, body, user_id)
         res.status(200).json({
-            message: "success update one new criteria",
+            message: "success updated one criteria",
             code: "DATA_UPDATED",
             requested_id: id,
             updated_data: body
 
-        })
+        })// requested_id: id,
+            // updated_data: body
     } catch (err) {
         res.status(500).json({
             serverMessage: err,

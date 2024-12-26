@@ -1,6 +1,9 @@
 //Step 2
 // Function to calculate best and worst values for each criteria based on its trend
 const criteriaWeightUtil = (criteria, scores) => {
+    if (!Array.isArray(criteria)) {
+        return null
+    }
     // Create a map to hold the best and worst values for each criteria
     let stepTwoResult = [];
 
